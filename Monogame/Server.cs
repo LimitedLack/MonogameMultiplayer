@@ -20,7 +20,7 @@ namespace Monogame
 
             Console.SetWindowSize(70, 17);
 
-            TcpListener listener = new TcpListener(IPAddress.Parse("192.168.56.1"), 8778);
+            TcpListener listener = new TcpListener(IPAddress.Parse("192.168.1.17"), 12345);
             listener.Start();
 
             Console.WriteLine("Opened Listener at " + listener.LocalEndpoint + ".");

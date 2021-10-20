@@ -35,7 +35,7 @@ namespace Monogame
 
         public Game1(string IPAddress, int port, int loginSelection)
         {
-            Console.SetWindowSize(45, 15);
+            Console.SetWindowSize(75, 15);
 
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -43,8 +43,9 @@ namespace Monogame
 
             try
             {
+                Console.Clear();
                 Console.WriteLine("Attempting to connect to game server...");
-                tcpClient.Connect("192.168.56.1", 8778);
+                tcpClient.Connect(IPAddress, port);
                 netStream = tcpClient.GetStream();
                 netStream.Write(asen.GetBytes(loginSelection.ToString()));
 
@@ -54,7 +55,7 @@ namespace Monogame
 
                 Task.Run(() => StreamReader());
             }
-            catch (Exception e)
+            catch
             {
                 Console.WriteLine("Failed to connect to game server.");
                 Console.WriteLine("Press any key to exit...");
@@ -161,9 +162,12 @@ namespace Monogame
             }
         }
 
+        float timeSincePacketSent;
         protected override void Update(GameTime gameTime)
         {
+
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            timeSincePacketSent += deltaTime;
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -232,7 +236,11 @@ namespace Monogame
 
                 try
                 {
-                    netStream.Write(asen.GetBytes('p' + player1Position.X.ToString() + ',' + player1Position.Y.ToString()));
+                    if (timeSincePacketSent > 0.1f)
+                    {
+                        netStream.Write(asen.GetBytes('p' + player1Position.X.ToString() + ',' + player1Position.Y.ToString()));
+                        timeSincePacketSent = 0;
+                    }
                 }
                 catch
                 {
@@ -275,8 +283,11 @@ namespace Monogame
                     currentVelocity = currentVelocity * wallSlowdownMultiplier;
                 }
 
-
-                netStream.Write(asen.GetBytes('p' + player2Position.X.ToString() + ',' + player2Position.Y.ToString()));
+                if (timeSincePacketSent > 0.1f)
+                {
+                    netStream.Write(asen.GetBytes('p' + player2Position.X.ToString() + ',' + player2Position.Y.ToString()));
+                    timeSincePacketSent = 0;
+                }
             }
 
             base.Update(gameTime);
