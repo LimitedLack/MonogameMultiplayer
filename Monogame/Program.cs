@@ -19,7 +19,7 @@ namespace Monogame
             }
             else if (selection == 2)
             {
-                Server.StartServer();
+                Server.CreateServer();
             }
         }
     }

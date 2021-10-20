@@ -13,6 +13,8 @@ namespace Monogame
     {
         int playerNumber = 0;
 
+        float timeBetweenStreamUpdates = 0.01f;
+        float timeSinceLastStreamUpdate = 0f;
 
         Texture2D player1Texture;
         Vector2 player1Position;
@@ -162,12 +164,11 @@ namespace Monogame
             }
         }
 
-        float timeSincePacketSent;
         protected override void Update(GameTime gameTime)
         {
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            timeSincePacketSent += deltaTime;
+            timeSinceLastStreamUpdate += deltaTime;
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -236,10 +237,9 @@ namespace Monogame
 
                 try
                 {
-                    if (timeSincePacketSent > 0.1f)
+                    if (timeSinceLastStreamUpdate >= timeBetweenStreamUpdates)
                     {
                         netStream.Write(asen.GetBytes('p' + player1Position.X.ToString() + ',' + player1Position.Y.ToString()));
-                        timeSincePacketSent = 0;
                     }
                 }
                 catch
@@ -283,12 +283,14 @@ namespace Monogame
                     currentVelocity = currentVelocity * wallSlowdownMultiplier;
                 }
 
-                if (timeSincePacketSent > 0.1f)
+                if (timeSinceLastStreamUpdate >= timeBetweenStreamUpdates)
                 {
                     netStream.Write(asen.GetBytes('p' + player2Position.X.ToString() + ',' + player2Position.Y.ToString()));
-                    timeSincePacketSent = 0;
                 }
             }
+
+            if (timeSinceLastStreamUpdate > timeBetweenStreamUpdates)
+                timeSinceLastStreamUpdate = 0;
 
             base.Update(gameTime);
         }

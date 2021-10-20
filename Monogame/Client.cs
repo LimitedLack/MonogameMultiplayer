@@ -30,15 +30,19 @@ namespace Monogame
 
             int selection = int.Parse(Console.ReadKey().KeyChar.ToString());
 
+            Console.WriteLine();
             switch (selection)
             {
                 case 1:
+                    Console.WriteLine("Loading...");
                     StartClient(selectedIP, selectedPort, 1);
                     break;
                 case 2:
+                    Console.WriteLine("Loading...");
                     StartClient(selectedIP, selectedPort, 2);
                     break;
                 case 3:
+                    Console.WriteLine("Loading...");
                     StartClient(selectedIP, selectedPort, 3);
                     break;
             }
