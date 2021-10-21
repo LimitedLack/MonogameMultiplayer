@@ -136,29 +136,58 @@ namespace Monogame
                 else if (buffer[0] == '2')
                     usedPlayer = 2;
 
-                if (buffer[1] == 'p')
+                /*
+                for (int i = 0; i < bufferCount; i++)
                 {
-                    float xPos = 0;
-                    string workingString = "";
+                    Console.Write(Convert.ToChar(buffer[i]));
+                }
+                Console.WriteLine();
+                */
 
-                    for (int i = 2; i < 9; i++)
+                try
+                {
+                    if (buffer[1] == 'p')
                     {
-                        char workingCharacter = Convert.ToChar(buffer[i]);
+                        float xPos = 0;
+                        float yPos = 0;
+                        string workingString = "";
 
-                        if (workingCharacter != ',')
-                            workingString += workingCharacter;
-                        else
+                        for (int i = 2; i < bufferCount; i++)
                         {
-                            xPos = int.Parse(workingString);
-                            workingString = "";
-                        }
-                    }
-                    float yPos = int.Parse(workingString);
+                            char workingCharacter = Convert.ToChar(buffer[i]);
 
-                    if (usedPlayer == 1)
-                        player1Position = new Vector2(xPos, yPos);
-                    else if (usedPlayer == 2)
-                        player2Position = new Vector2(xPos, yPos);
+                            if (workingCharacter != ',' && workingCharacter != '.')
+                                workingString += workingCharacter;
+                            else if (workingCharacter == '.')
+                            {
+                                yPos = int.Parse(workingString); // TODO: System.FormatException: 'Input string was not in a correct format.'
+                                break;
+                            }
+                            else
+                            {
+                                xPos = int.Parse(workingString);
+                                workingString = "";
+                            }
+                        }
+
+                        if (usedPlayer == 1)
+                            player1Position = new Vector2(xPos, yPos);
+                        else if (usedPlayer == 2)
+                            player2Position = new Vector2(xPos, yPos);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Failed to parse pos buffer.");
+
+                    for (int i = 0; i < bufferCount; i++)
+                    {
+                        Console.Write(Convert.ToChar(buffer[i]));
+                    }
+                    Console.WriteLine();
+
+                    Console.WriteLine("Player 1: " + player1Position.ToString());
+                    Console.WriteLine("Player 2: " + player2Position.ToString());
                 }
 
             }
@@ -239,7 +268,7 @@ namespace Monogame
                 {
                     if (timeSinceLastStreamUpdate >= timeBetweenStreamUpdates)
                     {
-                        netStream.Write(asen.GetBytes('p' + player1Position.X.ToString() + ',' + player1Position.Y.ToString()));
+                        netStream.Write(asen.GetBytes('p' + player1Position.X.ToString() + ',' + player1Position.Y.ToString() + '.'));
                     }
                 }
                 catch
@@ -285,7 +314,7 @@ namespace Monogame
 
                 if (timeSinceLastStreamUpdate >= timeBetweenStreamUpdates)
                 {
-                    netStream.Write(asen.GetBytes('p' + player2Position.X.ToString() + ',' + player2Position.Y.ToString()));
+                    netStream.Write(asen.GetBytes('p' + player2Position.X.ToString() + ',' + player2Position.Y.ToString() + '.'));
                 }
             }
 
